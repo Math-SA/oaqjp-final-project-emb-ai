@@ -15,7 +15,7 @@ def analyze():
         'fear': {emotion['fear']}, \
         'joy': {emotion['joy']} and \
         'sadness': {emotion['sadness']}. \
-        The dominant emotion is {emotion['dominant_emotion']}."
+        The dominant emotion is <b>{emotion['dominant_emotion']}</b>."
     return response
 
 @app.route("/")
