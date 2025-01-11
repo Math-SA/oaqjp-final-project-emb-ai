@@ -1,6 +1,7 @@
 '''A module that leverages Watson NLP Library for emotion detection'''
-import requests
 import json
+import requests
+
 
 def emotion_detector(text_to_analyze):
     ''' Calls Watson NLP Service to analyze a text 
@@ -15,7 +16,8 @@ def emotion_detector(text_to_analyze):
                 'dominant_emotion': '<name of the dominant emotion>'
             }
     '''
-    url = 'https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict'
+    api_host='https://sn-watson-emotion.labs.skills.network'
+    url = api_host +'/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict'
     header_dict = {"grpc-metadata-mm-model-id": "emotion_aggregated-workflow_lang_en_stock"}
     emotions = {
         'anger': None,
@@ -26,19 +28,22 @@ def emotion_detector(text_to_analyze):
         'dominant_emotion': None
     }
     #Don't bother sending empty strings to Watson API
-    if (text_to_analyze == ''):
+    if text_to_analyze == '':
         return emotions
-    payload = { "raw_document": { "text": text_to_analyze } } 
-    watson_response = requests.post(url, json = payload, headers=header_dict)
-    #Return None for all values if satus code is 400
-    if (watson_response.status_code == 400): 
+    payload = { "raw_document": { "text": text_to_analyze } }
+    try:
+        watson_response = requests.post(url, json = payload, headers=header_dict, timeout=5)
+        #Return None for all values if satus code is 400
+        if watson_response.status_code == 400:
+            return emotions
+    except requests.exceptions.Timeout:
         return emotions
     #process Watson response
     watson_response = json.loads(watson_response.text)
     dominant = (0,"")
     watson_emotions = watson_response['emotionPredictions'][0]['emotion']
     for emotion, score in watson_emotions.items():
-        if (score > dominant[0]):
+        if score > dominant[0]:
             dominant = (score, emotion)
     #formatting the response to be clompliant with the instructions
     emotions = {
