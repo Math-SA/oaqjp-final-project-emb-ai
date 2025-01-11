@@ -9,6 +9,9 @@ app = Flask("Emotion Detector app. Powered by IBM Watson NLP Service")
 def analyze():
     #get parameter textToAnalyze and analyze
     emotion = emotion_detector(request.args.get('textToAnalyze'))
+    if (emotion['dominant_emotion'] == None):
+         return '<b>Invalid text! Please try again!</b>'
+
     response = f"For the given statement, the system response is \
         'anger': {emotion['anger']},\
         'disgust': {emotion['disgust']},\
